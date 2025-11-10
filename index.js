@@ -9,6 +9,10 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 
 // --- ROUTES ---
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/static/index.html');
+});
+
 
 // About page
 app.get('/about', (req, res) => {
