@@ -5,6 +5,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Allow cross-origin requests from anywhere (so your separate client can access the API)
+// remove this line to show a CORS error in the browser console
 app.use(cors());
 
 // --- ROUTES ---
@@ -16,28 +17,21 @@ app.get('/about', (req, res) => {
     res.send('About Node.js Dice Roller API.');
 });
 
-// Version endpoint
-app.get('/version', (req, res) => {
-    console.log('Calling "/version" on the server.');
-    res.type('text/plain');
-    res.send('Version: 1.3');
-});
-
-// --- RANDOM DICE ENDPOINT ---
+// call to roll the dice
 app.get('/api/rollDice', (req, res) => {
     console.log('Calling "/api/rollDice" on the server.');
 
-    // Generate random number between 1–6
+    // generate random number between 1–6
     const roll = Math.floor(Math.random() * 6) + 1;
 
-    // Return JSON with roll and corresponding image filename
+    // return JSON with roll and corresponding image filename
     res.json({
         roll: roll,
-        image: `die${roll}.jpg` // Client should use this filename to show the dice image
+        image: `die${roll}.jpg` // client should use this filename to show the dice image
     });
 });
 
-// Simple ping test
+// ping test
 app.get('/api/ping', (req, res) => {
     console.log('Calling "/api/ping"');
     res.type('text/plain');
