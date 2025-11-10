@@ -1,63 +1,65 @@
-const express = require('express')
-app = express()
+const express = require('express');
+const cors = require('cors');
 
-const cors = require("cors")
+const app = express();
+const port = process.env.PORT || 3000;
 
-var url = require('url');
-var dt = require('./date-time');
+// Allow cross-origin requests from anywhere (so your separate client can access the API)
+app.use(cors());
 
-const port = process.env.PORT || 3000
-const majorVersion = 1
-const minorVersion = 3
+// --- ROUTES ---
 
-// Use Express to publish static HTML, CSS, and JavaScript files that run in the browser. 
-app.use(express.static(__dirname + '/static'))
-app.use(cors({ origin: '*' }))
+// About page
+app.get('/about', (req, res) => {
+    console.log('Calling "/about" on the server.');
+    res.type('text/plain');
+    res.send('About Node.js Dice Roller API.');
+});
 
-// The app.get functions below are being processed in Node.js running on the server.
-// Implement a custom About page.
-app.get('/about', (request, response) => {
-	console.log('Calling "/about" on the Node.js server.')
-	response.type('text/plain')
-	response.send('About Node.js on Azure Template.')
-})
+// Version endpoint
+app.get('/version', (req, res) => {
+    console.log('Calling "/version" on the server.');
+    res.type('text/plain');
+    res.send('Version: 1.3');
+});
 
-app.get('/version', (request, response) => {
-	console.log('Calling "/version" on the Node.js server.')
-	response.type('text/plain')
-	response.send('Version: '+majorVersion+'.'+minorVersion)
-})
+// --- RANDOM DICE ENDPOINT ---
+app.get('/api/rollDice', (req, res) => {
+    console.log('Calling "/api/rollDice" on the server.');
 
-app.get('/fetchNum1To6', (request, response) => {
-	console.log('Calling /fetchNum1To6 on Node.js server.')
-	let num = Math.floor(Math.random() * 6) + 1
+    // Generate random number between 1–6
+    const roll = Math.floor(Math.random() * 6) + 1;
 
-	response.type('text/plain')
-	response.send(num.toString())
-})
+    // Return JSON with roll and corresponding image filename
+    res.json({
+        roll: roll,
+        image: `die${roll}.jpg` // Client should use this filename to show the dice image
+    });
+});
 
-app.get('/api/ping', (request, response) => {
-	console.log('Calling "/api/ping"')
-	response.type('text/plain')
-	response.send('ping response')
-})
+// Simple ping test
+app.get('/api/ping', (req, res) => {
+    console.log('Calling "/api/ping"');
+    res.type('text/plain');
+    res.send('ping response');
+});
 
-// Custom 404 page.
-app.use((request, response) => {
-  response.type('text/plain')
-  response.status(404)
-  response.send('404 - Not Found')
-})
+// --- ERROR HANDLERS ---
 
-// Custom 500 page.
-app.use((err, request, response, next) => {
-  console.error(err.message)
-  response.type('text/plain')
-  response.status(500)
-  response.send('500 - Server Error')
-})
+// 404 handler
+app.use((req, res) => {
+    res.type('text/plain');
+    res.status(404).send('404 - Not Found');
+});
 
-app.listen(port, () => console.log(
-  `Express started at \"http://localhost:${port}\"\n` +
-  `press Ctrl-C to terminate.`)
-)
+// 500 handler
+app.use((err, req, res, next) => {
+    console.error(err.message);
+    res.type('text/plain');
+    res.status(500).send('500 - Server Error');
+});
+
+// --- START SERVER ---
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
